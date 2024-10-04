@@ -30,6 +30,7 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
@@ -47,6 +48,7 @@ public class FlatComboBox extends JPanel {
   private String selection;
   private final JLabel selectedLabel = new JLabel("");
   private final Configuration configuration;
+  private List<SelectionListener> listeners = new ArrayList<>();
 
   public FlatComboBox(Configuration config) {
     configuration = config;
@@ -162,6 +164,22 @@ public class FlatComboBox extends JPanel {
     super.updateUI();
     setForeground(Color.BLACK);
     setBackground(Color.WHITE);
+  }
+
+  public void select(String selection) {
+    this.selectedLabel.setText(selection);
+    this.selection = selection;
+  }
+
+  public void addListener(SelectionListener selectionListener) {
+    if (selectionListener == null) {
+      return;
+    }
+    listeners.add(selectionListener);
+  }
+
+  public static interface SelectionListener {
+    void onSelected();
   }
 
   public record Configuration(List<String> items,
