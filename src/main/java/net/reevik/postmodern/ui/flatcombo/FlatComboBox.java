@@ -72,7 +72,6 @@ public class FlatComboBox extends JPanel {
 
       @Override
       public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        FlatComboBox.this.active = false;
         FlatComboBox.this.repaint();
       }
 
@@ -122,11 +121,11 @@ public class FlatComboBox extends JPanel {
       @Override
       public void mousePressed(MouseEvent e) {
         if (!active) {
-          popupmenu.show(selectedLabel, -10, selectedLabel.getY() + selectedLabel.getHeight() + 2);
           active = true;
+          popupmenu.show(selectedLabel, -10, selectedLabel.getY() + selectedLabel.getHeight() + 2);
         } else {
-          popupmenu.setVisible(false);
           active = false;
+          popupmenu.setVisible(false);
         }
 
         super.mousePressed(e);
@@ -145,6 +144,7 @@ public class FlatComboBox extends JPanel {
       selectedLabel.setText(selection);
       configuration.action().accept(selection);
       FlatComboBox.this.repaint();
+      FlatComboBox.this.active = false;
     });
     return menuItem;
   }
