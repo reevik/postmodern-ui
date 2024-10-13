@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.reevik.postmodern.ui.flatcombo;
+package net.reevik.swing.components;
 
 import static java.awt.GridBagConstraints.EAST;
 import static java.awt.GridBagConstraints.VERTICAL;
@@ -41,7 +41,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-public class FlatComboBox extends JPanel {
+public class JFlatComboBox extends JPanel {
   private static final int HEIGHT = 22;
   private boolean focus;
   private boolean active;
@@ -50,7 +50,7 @@ public class FlatComboBox extends JPanel {
   private final Configuration configuration;
   private List<SelectionListener> listeners = new ArrayList<>();
 
-  public FlatComboBox(Configuration config) {
+  public JFlatComboBox(Configuration config) {
     configuration = config;
     selection = config.items().getFirst();
 
@@ -72,7 +72,7 @@ public class FlatComboBox extends JPanel {
 
       @Override
       public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        FlatComboBox.this.repaint();
+        JFlatComboBox.this.repaint();
       }
 
       @Override
@@ -143,8 +143,8 @@ public class FlatComboBox extends JPanel {
       selection = e.getActionCommand();
       selectedLabel.setText(selection);
       configuration.action().accept(selection);
-      FlatComboBox.this.repaint();
-      FlatComboBox.this.active = false;
+      JFlatComboBox.this.repaint();
+      JFlatComboBox.this.active = false;
     });
     return menuItem;
   }
