@@ -15,20 +15,16 @@
  */
 package net.reevik.swing.components;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
+import javax.swing.*;
+import javax.swing.event.MenuKeyEvent;
+import javax.swing.event.MenuKeyListener;
+import javax.swing.event.MouseInputAdapter;
 
 public class JAdvancedInputField extends JComponent {
 
@@ -46,24 +42,38 @@ public class JAdvancedInputField extends JComponent {
       public void focusGained(FocusEvent e) {
         super.focusGained(e);
         cursorsOffset = content.size();
+        repaint();
+      }
+
+      @Override
+      public void focusLost(FocusEvent e) {
+        super.focusLost(e);
+        repaint();
       }
     });
 
     content = new ArrayList<>();
+    initPopupMenu();
     setFocusable(true);
     setBackground(Color.RED);
     setBorder(BorderFactory.createLineBorder(Color.BLACK));
+    addMouseListener(new MouseInputAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+        super.mouseClicked(e);
+        grabFocus();
+        repaint();
+      }
+    });
     addKeyListener(new KeyAdapter() {
+
+      private static boolean isPrintableChar(char c) {
+        return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED;
+      }
+
       @Override
       public void keyPressed(KeyEvent e) {
         char keyChar = e.getKeyChar();
-        System.out.println(e.getKeyCode());
-        if (e.getKeyCode() == KeyEvent.VK_SHIFT ||
-            e.getKeyCode() == KeyEvent.VK_CONTROL ||
-            e.getKeyCode() == KeyEvent.VK_ALT ||
-            e.getKeyCode() == 157) {
-          return;
-        }
         if (e.getKeyCode() == KeyEvent.VK_LEFT) {
           if (cursorsOffset > 0) {
             if (content.get(cursorsOffset - 1) instanceof String s) {
@@ -99,30 +109,32 @@ public class JAdvancedInputField extends JComponent {
           }
           content.remove(cursorsOffset - 1);
           cursorsOffset--;
+          repaint();
           return;
         }
+
+        if (!isPrintableChar(keyChar)) {
+          return;
+        }
+
         addText(String.valueOf(keyChar));
         cursorsOffset++;
-        checkNewButtonPatterns();
         repaint();
       }
     });
   }
 
-  private void checkNewButtonPatterns() {
-    var buffer = new StringBuilder();
-    for (Object item: content) {
-      if (item instanceof String s) {
-        buffer.append(s);
-        Matcher matcher = pattern.matcher(buffer.toString());
-        while (matcher.find()) {
-
-        }
-
-      } else {
-
-      }
-    }
+  private void initPopupMenu() {
+    JPopupMenu popupMenu = new JPopupMenu();
+    JMenuItem menuItem = new JMenuItem("New UUID Generator");
+    menuItem.addActionListener(e -> {
+      addButton("UUID");
+      cursorsOffset++;
+      requestFocusInWindow();
+      repaint();
+    });
+    popupMenu.add(menuItem);
+    setComponentPopupMenu(popupMenu);
   }
 
   private boolean isBackspace(KeyEvent e) {
@@ -208,8 +220,8 @@ public class JAdvancedInputField extends JComponent {
     }
 
     if (start < strContent.length() - 1) {
-      var preceedingText = strContent.substring(start);
-      for (char c : preceedingText.toCharArray()) {
+      var precedingText = strContent.substring(start);
+      for (char c : precedingText.toCharArray()) {
         addText(String.valueOf(c));
         cursorsOffset++;
       }
