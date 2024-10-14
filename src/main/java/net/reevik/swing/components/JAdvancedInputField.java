@@ -15,22 +15,30 @@
  */
 package net.reevik.swing.components;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.*;
-import javax.swing.event.MenuKeyEvent;
-import javax.swing.event.MenuKeyListener;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.MouseInputAdapter;
 
 public class JAdvancedInputField extends JComponent {
 
-  public static final int OFFSET_AFTER_BUTTON = 66;
+  public static final int OFFSET_AFTER_BUTTON = 64;
   private final List<Object> content;
-  private int cursorX = 0;
+  private int cursorX = 4;
   private final int cursorY = 16;
   private int cursorsOffset = 0;
   private final Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -55,8 +63,9 @@ public class JAdvancedInputField extends JComponent {
     content = new ArrayList<>();
     initPopupMenu();
     setFocusable(true);
-    setBackground(Color.RED);
-    setBorder(BorderFactory.createLineBorder(Color.BLACK));
+    setOpaque(true);
+    setBackground(Color.DARK_GRAY);
+    setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
     addMouseListener(new MouseInputAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
@@ -148,7 +157,7 @@ public class JAdvancedInputField extends JComponent {
 
   private void addButton(String label) {
     var button = new JButton(label);
-    button.setBounds(cursorX + 3, cursorY - 14, 60, 18);
+    button.setBounds(cursorX, cursorY - 14, 60, 18);
     button.setBorder(BorderFactory.createEmptyBorder());
     button.setFont(button.getFont());
     button.setBackground(new Color(63, 100, 139, 255));
@@ -165,22 +174,22 @@ public class JAdvancedInputField extends JComponent {
       g.drawLine(cursorX, cursorY - 12, cursorX, cursorY + 3);  // Vertical line for the cursor
     }
 
-    int x = 0;
+    int x = 4;
     int y = cursorY;
     for (Object obj : content) {
       if (obj instanceof String) {
         g.drawString((String) obj, x, y);
         x += getFontMetrics(getFont()).stringWidth((String) obj);
       } else if (obj instanceof JButton button) {
-        button.setLocation(x + 3, y - 14);
-        x += button.getWidth() + 6;
+        button.setLocation(x + 2, y - 14);
+        x += button.getWidth() + 4;
       }
     }
   }
 
   @Override
   public Dimension getPreferredSize() {
-    return new Dimension(500, 200);  // Define custom component size
+    return new Dimension(180, 24);  // Define custom component size
   }
 
   public String getContent() {

@@ -3,6 +3,7 @@ package net.reevik.swing;
 import com.formdev.flatlaf.intellijthemes.FlatXcodeDarkIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.util.List;
 import javax.swing.JFrame;
@@ -26,13 +27,14 @@ public class Main {
       FlatXcodeDarkIJTheme.setup();
       UIManager.put("Component.arrowType", "chevron");
       var jFrame = new JFrame();
-      jFrame.setLayout(new GridBagLayout());
-      jFrame.setSize(500, 400);
+      jFrame.setLayout(new FlowLayout());
+      jFrame.setSize(800, 400);
 
       var configuration = new Configuration(List.of("DEV", "STAGE", "PROD"),
           (s) -> System.out.println("selected = " + s),
           Color.darkGray, Color.gray, Color.LIGHT_GRAY, 80, 10);
       jFrame.add(new JAdvancedInputField());
+
       jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
       jFrame.setVisible(true);
     });
