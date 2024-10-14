@@ -28,6 +28,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 public class JFlatComboBox extends JPanel {
+
   private static final int HEIGHT = 22;
   private boolean focus;
   private boolean active;
@@ -51,15 +54,24 @@ public class JFlatComboBox extends JPanel {
   private List<SelectionListener> listeners = new ArrayList<>();
 
   public JFlatComboBox(Configuration config) {
-    configuration = config;
-    selection = config.items().getFirst();
+    this.configuration = config;
+    this.selection = config.items().getFirst();
+    this.addKeyListener(new KeyAdapter() {
+      @Override
+      public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+          // Handle the left arrow key within the editor
+          System.out.println("Left arrow key pressed within editor");
+          e.consume();  // Prevent JTable from processing the key event
+        }
+      }
+    });
 
     setPreferredSize(new Dimension(configuration.width(), HEIGHT));
     setBackground(configuration.inactive());
     setOpaque(false);
     setLayout(new GridBagLayout());
     setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 6));
-
     var popupmenu = new JPopupMenu("Edit");
     popupmenu.setBackground(configuration.active());
     configuration.items().stream()
@@ -179,6 +191,7 @@ public class JFlatComboBox extends JPanel {
   }
 
   public static interface SelectionListener {
+
     void onSelected();
   }
 
@@ -189,6 +202,7 @@ public class JFlatComboBox extends JPanel {
                               Color label,
                               int width,
                               int fontSize) {
+
     public void add(String item) {
       items.add(item);
     }

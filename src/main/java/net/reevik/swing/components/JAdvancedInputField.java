@@ -24,6 +24,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -36,6 +37,7 @@ public class JAdvancedInputField extends JComponent {
   private int cursorX = 0;
   private final int cursorY = 16;
   private int cursorsOffset = 0;
+  private final Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
 
   public JAdvancedInputField() {
 
@@ -55,10 +57,14 @@ public class JAdvancedInputField extends JComponent {
       @Override
       public void keyPressed(KeyEvent e) {
         char keyChar = e.getKeyChar();
-        if (e.getKeyCode() == 16 || e.getKeyCode() == 157) {
+        System.out.println(e.getKeyCode());
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT ||
+            e.getKeyCode() == KeyEvent.VK_CONTROL ||
+            e.getKeyCode() == KeyEvent.VK_ALT ||
+            e.getKeyCode() == 157) {
           return;
         }
-        if (e.getKeyCode() == 37) {
+        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
           if (cursorsOffset > 0) {
             if (content.get(cursorsOffset - 1) instanceof String s) {
               cursorX -= getFontMetrics(getFont()).stringWidth(s);
@@ -71,8 +77,9 @@ public class JAdvancedInputField extends JComponent {
           return;
         }
 
-        if (e.getKeyCode() == 39) {
-          if (cursorsOffset++ < content.size()) {
+        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+          if (cursorsOffset < content.size()) {
+            cursorsOffset++;
             if (content.get(cursorsOffset - 1) instanceof String s) {
               cursorX += getFontMetrics(getFont()).stringWidth(s);
             } else {
@@ -80,13 +87,10 @@ public class JAdvancedInputField extends JComponent {
             }
             repaint();
           }
-
           return;
         }
 
-        if (keyChar == ' ') {
-          addButton(".");
-        } else if (isBackspace(e) && cursorsOffset++ > 0) {
+        if (isBackspace(e) && cursorsOffset > 0) {
           if (content.get(cursorsOffset - 1) instanceof String s) {
             cursorX -= getFontMetrics(getFont()).stringWidth(s);
           } else {
@@ -95,13 +99,30 @@ public class JAdvancedInputField extends JComponent {
           }
           content.remove(cursorsOffset - 1);
           cursorsOffset--;
-        } else {
-          addText(String.valueOf(keyChar));
-          cursorsOffset++;
+          return;
         }
+        addText(String.valueOf(keyChar));
+        cursorsOffset++;
+        checkNewButtonPatterns();
         repaint();
       }
     });
+  }
+
+  private void checkNewButtonPatterns() {
+    var buffer = new StringBuilder();
+    for (Object item: content) {
+      if (item instanceof String s) {
+        buffer.append(s);
+        Matcher matcher = pattern.matcher(buffer.toString());
+        while (matcher.find()) {
+
+        }
+
+      } else {
+
+      }
+    }
   }
 
   private boolean isBackspace(KeyEvent e) {
@@ -138,8 +159,7 @@ public class JAdvancedInputField extends JComponent {
       if (obj instanceof String) {
         g.drawString((String) obj, x, y);
         x += getFontMetrics(getFont()).stringWidth((String) obj);
-      } else if (obj instanceof JButton) {
-        var button = (JButton) obj;
+      } else if (obj instanceof JButton button) {
         button.setLocation(x + 3, y - 14);
         x += button.getWidth() + 6;
       }
@@ -170,12 +190,15 @@ public class JAdvancedInputField extends JComponent {
     content.clear();
     cursorX = 0;
     cursorsOffset = 0;
-    var pattern = Pattern.compile("\\$\\{(.*?)\\}");
+    renderStringContent(strContent);
+  }
+
+  private void renderStringContent(String strContent) {
     var matcher = pattern.matcher(strContent);
     var start = 0;
     while (matcher.find()) {
-      var preceedingText = strContent.substring(start, matcher.start());
-      for (char c : preceedingText.toCharArray()) {
+      var precedingText = strContent.substring(start, matcher.start());
+      for (char c : precedingText.toCharArray()) {
         addText(String.valueOf(c));
         cursorsOffset++;
       }
@@ -185,7 +208,7 @@ public class JAdvancedInputField extends JComponent {
     }
 
     if (start < strContent.length() - 1) {
-      var preceedingText = strContent.substring(start, strContent.length());
+      var preceedingText = strContent.substring(start);
       for (char c : preceedingText.toCharArray()) {
         addText(String.valueOf(c));
         cursorsOffset++;
@@ -194,6 +217,7 @@ public class JAdvancedInputField extends JComponent {
   }
 
   private void destructComponents() {
-    content.stream().filter(o -> o instanceof JButton).forEach(b -> JAdvancedInputField.this.remove((JButton) b));
+    content.stream().filter(o -> o instanceof JButton)
+        .forEach(b -> JAdvancedInputField.this.remove((JButton) b));
   }
 }

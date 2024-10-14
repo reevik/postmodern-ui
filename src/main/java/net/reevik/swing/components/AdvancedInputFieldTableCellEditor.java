@@ -20,10 +20,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.Serializable;
 import java.util.EventObject;
 import javax.swing.AbstractCellEditor;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellEditor;
 
@@ -31,18 +36,32 @@ public class AdvancedInputFieldTableCellEditor extends AbstractCellEditor implem
   private final JAdvancedInputField inputBox;
   private final EditorDelegate delegate;
 
-  public AdvancedInputFieldTableCellEditor(JAdvancedInputField inputBox) {
+  public AdvancedInputFieldTableCellEditor(JAdvancedInputField inputField) {
 
-    this.inputBox = inputBox;
+    this.inputBox = inputField;
     this.delegate = new EditorDelegate() {
       public void setValue(Object value) {
-        inputBox.setContent((value != null) ? value.toString() : "");
+        inputField.setContent((value != null) ? value.toString() : "");
       }
 
       public Object getCellEditorValue() {
-        return inputBox.getContent();
+        return inputField.getContent();
       }
     };
+
+    inputBox.addKeyListener(new KeyAdapter() {
+      @Override
+      public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_LEFT ||
+            e.getKeyCode() == KeyEvent.VK_RIGHT) {
+          e.consume();  // Prevent JTable from processing the key event
+        }
+      }
+    });
+
+    InputMap inputMap = inputBox.getInputMap(JComponent.WHEN_FOCUSED);
+    inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "none");
+    inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "none");
   }
 
   @Override
