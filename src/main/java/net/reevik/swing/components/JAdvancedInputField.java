@@ -33,6 +33,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.MouseInputAdapter;
+import net.reevik.mikron.string.Str;
 
 public class JAdvancedInputField extends JComponent {
 
@@ -71,7 +72,24 @@ public class JAdvancedInputField extends JComponent {
       public void mousePressed(MouseEvent e) {
         super.mouseClicked(e);
         grabFocus();
+        findCursorPoint(e.getX());
         repaint();
+      }
+
+      private void findCursorPoint(int x) {
+        cursorX = 4;
+        cursorsOffset = 0;
+        for (final Object item: content) {
+          if (item instanceof String s) {
+            cursorX += getFontMetrics(getFont()).stringWidth(s);
+          } else {
+            cursorX += OFFSET_AFTER_BUTTON;
+          }
+          cursorsOffset++;
+          if (cursorX > x) {
+            break;
+          }
+        }
       }
     });
     addKeyListener(new KeyAdapter() {
@@ -209,7 +227,7 @@ public class JAdvancedInputField extends JComponent {
   public void setContent(String strContent) {
     destructComponents();
     content.clear();
-    cursorX = 0;
+    cursorX = 4;
     cursorsOffset = 0;
     renderStringContent(strContent);
   }
