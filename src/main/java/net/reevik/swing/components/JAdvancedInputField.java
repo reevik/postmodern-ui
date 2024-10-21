@@ -160,6 +160,7 @@ public class JAdvancedInputField extends JComponent {
                     }
                     content.remove(cursorsOffset - 1);
                     cursorsOffset--;
+                    notifyListeners(content);
                     repaint();
                     return;
                 }
@@ -168,7 +169,7 @@ public class JAdvancedInputField extends JComponent {
                     return;
                 }
 
-                addText(String.valueOf(keyChar));
+                addText(String.valueOf(keyChar), true);
                 cursorsOffset++;
                 repaint();
             }
@@ -192,11 +193,13 @@ public class JAdvancedInputField extends JComponent {
         return e.getKeyCode() == 8;
     }
 
-    private void addText(String text) {
+    private void addText(String text, boolean notify) {
         content.add(cursorsOffset, text);
         cursorX += getFontMetrics(getFont()).stringWidth(text);
-        notifyListeners(content);
-    }
+        if (notify) {
+            notifyListeners(content);
+        }
+   }
 
     private void notifyListeners(List<Object> content) {
         inputListeners.forEach(inputListener -> inputListener.onInputUpdate(content));
@@ -261,6 +264,7 @@ public class JAdvancedInputField extends JComponent {
         cursorX = 4;
         cursorsOffset = 0;
         renderStringContent(strContent);
+        notifyListeners(content);
     }
 
     private void renderStringContent(String strContent) {
@@ -272,7 +276,7 @@ public class JAdvancedInputField extends JComponent {
         while (matcher.find()) {
             var precedingText = strContent.substring(start, matcher.start());
             for (char c : precedingText.toCharArray()) {
-                addText(String.valueOf(c));
+                addText(String.valueOf(c), false);
                 cursorsOffset++;
             }
             addButton(matcher.group(1));
@@ -283,7 +287,7 @@ public class JAdvancedInputField extends JComponent {
         if (start < strContent.length() - 1) {
             var precedingText = strContent.substring(start);
             for (char c : precedingText.toCharArray()) {
-                addText(String.valueOf(c));
+                addText(String.valueOf(c), false);
                 cursorsOffset++;
             }
         }
