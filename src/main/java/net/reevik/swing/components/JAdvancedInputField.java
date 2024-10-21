@@ -15,7 +15,10 @@
  */
 package net.reevik.swing.components;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
@@ -32,8 +35,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.MouseInputAdapter;
 
-import net.reevik.mikron.string.Str;
-
 public class JAdvancedInputField extends JComponent {
 
     public static final int OFFSET_AFTER_BUTTON = 64;
@@ -43,6 +44,8 @@ public class JAdvancedInputField extends JComponent {
     private int cursorsOffset = 0;
     private final Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
     private int currentX, currentY;
+
+    private List<InputListener> inputListeners = new ArrayList<>();
 
     public JAdvancedInputField() {
 
@@ -192,6 +195,11 @@ public class JAdvancedInputField extends JComponent {
     private void addText(String text) {
         content.add(cursorsOffset, text);
         cursorX += getFontMetrics(getFont()).stringWidth(text);
+        notifyListeners(content);
+    }
+
+    private void notifyListeners(List<Object> content) {
+        inputListeners.forEach(inputListener -> inputListener.onInputUpdate(content));
     }
 
     private void addButton(String label) {
@@ -284,5 +292,15 @@ public class JAdvancedInputField extends JComponent {
     private void destructComponents() {
         content.stream().filter(o -> o instanceof JButton)
                 .forEach(b -> JAdvancedInputField.this.remove((JButton) b));
+    }
+
+    public void addInputListener(InputListener listener) {
+        if (!inputListeners.contains(listener)) {
+            inputListeners.add(listener);
+        }
+    }
+
+    public void removeAllListeners() {
+        inputListeners.clear();
     }
 }

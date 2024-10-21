@@ -2,12 +2,17 @@ package net.reevik.swing;
 
 import com.formdev.flatlaf.intellijthemes.FlatXcodeDarkIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.List;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import net.reevik.swing.components.JAdvancedInputField;
 import net.reevik.swing.components.toggle.JFlatToggleButton;
 import net.reevik.swing.components.toggle.JFlatToggleButton.Configuration;
 import net.reevik.swing.components.toggle.JToggleGroup;
-
-import javax.swing.*;
-import java.awt.*;
 
 public class Main {
 
