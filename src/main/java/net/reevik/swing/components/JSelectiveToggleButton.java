@@ -25,6 +25,7 @@ public class JSelectiveToggleButton extends JPanel implements ToggleListenable {
     private boolean focus;
     private boolean active;
     private boolean toggled;
+    private boolean memberOfToggleGroup;
     private String selection;
     private final JLabel selectedLabel = new JLabel();
     private final JSelectiveToggleButton.Configuration configuration;
@@ -97,17 +98,28 @@ public class JSelectiveToggleButton extends JPanel implements ToggleListenable {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                if (!toggled) {
-                    toggle();
-                    active = false;
-                    toggleListeners.forEach((t) -> t.onToggle(new ToggleEvent(JSelectiveToggleButton.this)));
-                } else if (!active) {
-                    active = true;
-                    popupmenu.show(selectedLabel, -10, selectedLabel.getY() + selectedLabel.getHeight() + 2);
+                if (memberOfToggleGroup) {
+                    if (!toggled) {
+                        toggle();
+                        active = false;
+                        toggleListeners.forEach((t) -> t.onToggle(new ToggleEvent(JSelectiveToggleButton.this)));
+                    } else if (!active) {
+                        active = true;
+                        popupmenu.show(selectedLabel, -10, selectedLabel.getY() + selectedLabel.getHeight() + 2);
+                    }
                 } else {
-                    untoggle();
-                    popupmenu.setVisible(false);
-                    toggleListeners.forEach((t) -> t.onUnToggle(new ToggleEvent(JSelectiveToggleButton.this)));
+                    if (!toggled) {
+                        toggle();
+                        active = false;
+                        toggleListeners.forEach((t) -> t.onToggle(new ToggleEvent(JSelectiveToggleButton.this)));
+                    } else if (!active) {
+                        active = true;
+                        popupmenu.show(selectedLabel, -10, selectedLabel.getY() + selectedLabel.getHeight() + 2);
+                    } else {
+                        untoggle();
+                        popupmenu.setVisible(false);
+                        toggleListeners.forEach((t) -> t.onUnToggle(new ToggleEvent(JSelectiveToggleButton.this)));
+                    }
                 }
 
                 super.mousePressed(e);
@@ -218,5 +230,14 @@ public class JSelectiveToggleButton extends JPanel implements ToggleListenable {
         this.active = false;
         updateLabelOnUnToggle();
         repaint();
+    }
+
+    @Override
+    public void setMemberOfToggleGroup(boolean memberOfToggleGroup) {
+        this.memberOfToggleGroup = memberOfToggleGroup;
+    }
+
+    public boolean isToggled() {
+        return toggled;
     }
 }

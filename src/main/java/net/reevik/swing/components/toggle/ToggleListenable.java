@@ -6,4 +6,6 @@ public interface ToggleListenable {
     void toggle();
 
     void untoggle();
+
+    void setMemberOfToggleGroup(boolean memberOfToggleGroup);
 }

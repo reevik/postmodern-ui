@@ -158,6 +158,7 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
         repaint();
     }
 
+    @Override
     public void setMemberOfToggleGroup(boolean memberOfToggleGroup) {
         this.memberOfToggleGroup = memberOfToggleGroup;
     }

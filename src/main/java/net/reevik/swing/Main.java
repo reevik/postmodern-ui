@@ -2,14 +2,14 @@ package net.reevik.swing;
 
 import com.formdev.flatlaf.intellijthemes.FlatXcodeDarkIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.List;
+
+import java.awt.*;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import net.reevik.swing.components.JAdvancedInputField;
+import net.reevik.swing.components.JHttpViewer;
 import net.reevik.swing.components.toggle.JFlatToggleButton;
 import net.reevik.swing.components.toggle.JFlatToggleButton.Configuration;
 import net.reevik.swing.components.toggle.JToggleGroup;
@@ -31,6 +31,7 @@ public class Main {
             jFrame.setLayout(new FlowLayout());
             jFrame.setSize(800, 400);
 
+            /*
             Configuration headerConfig = new Configuration("Header", (a) -> {
             }, Color.darkGray, Color.gray, Color.RED, 100, 11);
 
@@ -46,7 +47,12 @@ public class Main {
             jToggleGroup.addToggle(new JFlatToggleButton(queryConfig));
             jToggleGroup.selectFirst();
 
-            jFrame.add(jToggleGroup);
+             */
+            JHttpViewer jHttpViewer = new JHttpViewer();
+            jHttpViewer.setPreferredSize(new Dimension(400, 400));
+            jHttpViewer.setMaximumSize(new Dimension(400, 400));
+            jHttpViewer.setMinimumSize(new Dimension(400, 400));
+            jFrame.add(jHttpViewer);
             jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             jFrame.setVisible(true);
         });

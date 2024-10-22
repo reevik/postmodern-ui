@@ -13,14 +13,15 @@ public class JToggleGroup extends JPanel implements ToggleListener {
         toggles.stream().findFirst().ifPresent(ToggleListenable::toggle);
     }
 
-    public void addToggle(JFlatToggleButton toggle) {
-        toggle.setMemberOfToggleGroup(true);
+    public void addToggle(ToggleListenable toggle) {
+        //toggle.setMemberOfToggleGroup(true);
         if (!toggles.contains(toggle)) {
             toggles.add(toggle);
             toggle.addListener(this);
         }
-
-        add(toggle);
+        if (toggle instanceof JComponent component) {
+            add(component);
+        }
     }
 
     @Override
