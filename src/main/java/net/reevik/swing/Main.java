@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+
 import net.reevik.swing.components.JAdvancedInputField;
 import net.reevik.swing.components.JHttpViewer;
 import net.reevik.swing.components.toggle.JFlatToggleButton;
@@ -49,9 +50,12 @@ public class Main {
 
              */
             JHttpViewer jHttpViewer = new JHttpViewer();
-            jHttpViewer.setPreferredSize(new Dimension(400, 400));
-            jHttpViewer.setMaximumSize(new Dimension(400, 400));
-            jHttpViewer.setMinimumSize(new Dimension(400, 400));
+            jHttpViewer.setText("""
+                    {"var"[ "feen" , "stieg"]}
+                    """);
+            jHttpViewer.setPreferredSize(new Dimension(400, 50));
+            jHttpViewer.setMaximumSize(new Dimension(400, 50));
+            jHttpViewer.setMinimumSize(new Dimension(400, 50));
             jFrame.add(jHttpViewer);
             jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             jFrame.setVisible(true);
