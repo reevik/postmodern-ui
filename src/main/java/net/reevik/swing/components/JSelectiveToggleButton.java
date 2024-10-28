@@ -1,5 +1,6 @@
 package net.reevik.swing.components;
 
+import java.util.function.Predicate;
 import net.reevik.swing.components.toggle.ToggleEvent;
 import net.reevik.swing.components.toggle.ToggleListenable;
 import net.reevik.swing.components.toggle.ToggleListener;
@@ -31,6 +32,7 @@ public class JSelectiveToggleButton extends JPanel implements ToggleListenable {
     private final JSelectiveToggleButton.Configuration configuration;
     private final List<SelectionListener> selectionListeners = new ArrayList<>();
     private final List<ToggleListener> toggleListeners = new ArrayList<>();
+    private Predicate<ToggleListenable> canTogglePredicate = (toggle) -> true;
 
     public JSelectiveToggleButton(JSelectiveToggleButton.Configuration config) {
         this.configuration = config;
@@ -237,6 +239,18 @@ public class JSelectiveToggleButton extends JPanel implements ToggleListenable {
         this.memberOfToggleGroup = memberOfToggleGroup;
     }
 
+    @Override
+    public boolean canToggle() {
+        return canTogglePredicate.test(this);
+    }
+
+    @Override
+    public void setCanTogglePredicate(
+        Predicate<ToggleListenable> canTogglePredicate) {
+        this.canTogglePredicate = canTogglePredicate;
+    }
+
+    @Override
     public boolean isToggled() {
         return toggled;
     }

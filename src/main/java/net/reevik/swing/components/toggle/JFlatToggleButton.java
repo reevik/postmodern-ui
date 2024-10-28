@@ -1,5 +1,6 @@
 package net.reevik.swing.components.toggle;
 
+import java.util.function.Predicate;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -23,6 +24,7 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
     private final JFlatToggleButton.Configuration configuration;
     private final List<ToggleListener> toggleListeners = new ArrayList<>();
     private boolean memberOfToggleGroup = false;
+    private Predicate<ToggleListenable> canTogglePredicate = (toggle) -> true;
 
     public JFlatToggleButton(JFlatToggleButton.Configuration config) {
         this.configuration = config;
@@ -68,6 +70,9 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
 
             @Override
             public void mousePressed(MouseEvent e) {
+                if (!canToggle()) {
+                    return;
+                }
                 if (memberOfToggleGroup) {
                     updateLabelOnToggled();
                     toggled = true;
@@ -161,5 +166,20 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
     @Override
     public void setMemberOfToggleGroup(boolean memberOfToggleGroup) {
         this.memberOfToggleGroup = memberOfToggleGroup;
+    }
+
+    @Override
+    public boolean canToggle() {
+        return canTogglePredicate.test(this);
+    }
+
+    public void setCanTogglePredicate(
+        Predicate<ToggleListenable> canTogglePredicate) {
+        this.canTogglePredicate = canTogglePredicate;
+    }
+
+    @Override
+    public boolean isToggled() {
+        return toggled;
     }
 }

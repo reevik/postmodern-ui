@@ -44,21 +44,18 @@ public class JHttpViewer extends JPanel {
         editor.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                System.out.println("insertUpdate");
                 revalidate();
                 repaint();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                System.out.println("removeUpdate");
                 revalidate();
                 repaint();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                System.out.println("changedUpdate");
                 revalidate();
                 repaint();
             }
@@ -66,13 +63,11 @@ public class JHttpViewer extends JPanel {
         scrollableEditor.getViewport().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                System.out.println("getViewport().addChangeListener");
                 lineNumbers.revalidate();
                 lineNumbers.repaint();
             }
         });
         scrollableEditor.addPropertyChangeListener(evt ->{
-            System.out.println("addPropertyChangeListener");
             lineNumbers.revalidate();
             lineNumbers.repaint();
         });
@@ -83,30 +78,6 @@ public class JHttpViewer extends JPanel {
         lineNumbers.setMaximumSize(new Dimension(32, lineNumbers.getHeight()));
     }
 
-    public static int getHiddenPixels(JTextPane textPane) {
-        try {
-            // Get the visible rectangle of the JTextPane (viewport bounds)
-            Rectangle visibleRect = textPane.getVisibleRect();
-            int visibleY = visibleRect.y; // Top y-position of the visible area
-
-            // Get the start offset (position) of the first visible character
-            int startOffset = textPane.viewToModel2D(new Point(0, visibleY));
-
-            // Get the rectangle of the line containing the first visible character
-            Rectangle lineRect = textPane.modelToView(startOffset);
-
-            if (lineRect != null) {
-                // Calculate the hidden pixels by subtracting the top of the visible area from the top of the line
-                int hiddenPixels = visibleY - lineRect.y;
-                return Math.max(0, hiddenPixels);  // Ensure no negative values
-            }
-        } catch (BadLocationException ex) {
-            ex.printStackTrace();
-        }
-
-        return 0;
-    }
-
     public void setText(String text) {
         editor.setText(text);
         render();
@@ -114,9 +85,11 @@ public class JHttpViewer extends JPanel {
 
     private void render() {
         var styleContext = StyleContext.getDefaultStyleContext();
-        AttributeSet attributeSet = styleContext.addAttribute(EMPTY, StyleConstants.Foreground, new Color(73, 110, 149, 255));
-        var pattern = Pattern.compile("[\\[:,]\\s?+\"(.+?)\"");
-        applyPattern(editor.getText(), pattern, attributeSet);
+        AttributeSet attributeSet = styleContext.addAttribute(EMPTY, StyleConstants.Foreground, new Color(95,160,217, 255));
+        var patternJson = Pattern.compile("[\\[:,]\\s?+\"(.+?)\"");
+        var patternParam= Pattern.compile(":\\s?+(.+?)\n");
+        applyPattern(editor.getText(), patternParam, attributeSet);
+        applyPattern(editor.getText(), patternJson, attributeSet);
     }
 
     private void applyPattern(String text, Pattern pattern, AttributeSet attributeSet) {

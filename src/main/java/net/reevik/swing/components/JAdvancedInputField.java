@@ -44,6 +44,7 @@ public class JAdvancedInputField extends JComponent {
     private int cursorsOffset = 0;
     private final Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
     private int currentX, currentY;
+    private boolean editable = true;
 
     private List<InputListener> inputListeners = new ArrayList<>();
 
@@ -124,6 +125,9 @@ public class JAdvancedInputField extends JComponent {
 
             @Override
             public void keyPressed(KeyEvent e) {
+                if (!editable) {
+                    return;
+                }
                 char keyChar = e.getKeyChar();
                 if (e.getKeyCode() == KeyEvent.VK_LEFT) {
                     if (cursorsOffset > 0) {
@@ -219,8 +223,7 @@ public class JAdvancedInputField extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // Draw the blinking cursor at the current cursor position if visible
-        if (hasFocus()) {
+        if (hasFocus() && editable) {
             g.setColor(Color.LIGHT_GRAY);
             g.drawLine(cursorX, cursorY - 12, cursorX, cursorY + 4);  // Vertical line for the cursor
         }
@@ -306,5 +309,13 @@ public class JAdvancedInputField extends JComponent {
 
     public void removeAllListeners() {
         inputListeners.clear();
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
     }
 }

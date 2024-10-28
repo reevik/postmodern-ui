@@ -18,6 +18,7 @@ package net.reevik.swing.components;
 import static java.awt.GridBagConstraints.EAST;
 import static java.awt.GridBagConstraints.VERTICAL;
 import static java.awt.GridBagConstraints.WEST;
+import static net.reevik.swing.components.JSelectiveToggleButton.ARROW_WIDTH;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -60,9 +61,7 @@ public class JFlatComboBox extends JPanel {
       @Override
       public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-          // Handle the left arrow key within the editor
-          System.out.println("Left arrow key pressed within editor");
-          e.consume();  // Prevent JTable from processing the key event
+          e.consume();
         }
       }
     });
@@ -143,6 +142,10 @@ public class JFlatComboBox extends JPanel {
         super.mousePressed(e);
       }
     });
+
+    if (configuration.dynamicSize()) {
+      adjustWidthAccordingToTextWidth();
+    }
   }
 
   private JMenuItem createMenuItem(String label) {
@@ -157,8 +160,19 @@ public class JFlatComboBox extends JPanel {
       configuration.action().accept(selection);
       JFlatComboBox.this.repaint();
       JFlatComboBox.this.active = false;
+      if (configuration.dynamicSize()) {
+        adjustWidthAccordingToTextWidth();
+      }
     });
+
     return menuItem;
+  }
+
+  private void adjustWidthAccordingToTextWidth() {
+    int textWidth = getFontMetrics(getFont()).stringWidth(selection) + 8;
+    setPreferredSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
+    setMaximumSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
+    setMinimumSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
   }
 
   @Override
@@ -190,7 +204,7 @@ public class JFlatComboBox extends JPanel {
     listeners.add(selectionListener);
   }
 
-  public static interface SelectionListener {
+  public interface SelectionListener {
 
     void onSelected();
   }
@@ -201,7 +215,8 @@ public class JFlatComboBox extends JPanel {
                               Color active,
                               Color label,
                               int width,
-                              int fontSize) {
+                              int fontSize,
+                              boolean dynamicSize) {
 
     public void add(String item) {
       items.add(item);
