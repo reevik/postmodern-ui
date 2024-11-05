@@ -19,29 +19,41 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.MouseInputAdapter;
 
 public class JAdvancedInputField extends JComponent {
 
-    public static final int OFFSET_AFTER_BUTTON = 64;
+    private static final int OFFSET_AFTER_BUTTON = 64;
+    private static final int LEFT_PADDING = 4;
+    public static final String ACTION_MAP_PASTE = "paste";
     private final List<Object> content;
-    private int cursorX = 4;
+    private int cursorX = LEFT_PADDING;
     private final int cursorY = 16;
-    private int cursorsOffset = 0;
+    private int cursorsCharOffset = 0;
     private final Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
     private int currentX, currentY;
     private boolean editable = true;
@@ -54,7 +66,7 @@ public class JAdvancedInputField extends JComponent {
             @Override
             public void focusGained(FocusEvent e) {
                 super.focusGained(e);
-                cursorsOffset = content.size();
+                cursorsCharOffset = content.size();
                 repaint();
             }
 
@@ -71,7 +83,19 @@ public class JAdvancedInputField extends JComponent {
         setOpaque(true);
         setBackground(Color.DARK_GRAY);
         setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-
+        int modifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+            .put(KeyStroke.getKeyStroke('V', modifier), ACTION_MAP_PASTE);
+        getActionMap().put(ACTION_MAP_PASTE, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                char[] charArray = getClipboardContent().toCharArray();
+                for (var c : charArray) {
+                    addText(String.valueOf(c), true);
+                }
+                repaint();
+            }
+        });
         var mouseHandler = new MouseInputAdapter() {
             private int startX, startY;
 
@@ -99,22 +123,21 @@ public class JAdvancedInputField extends JComponent {
             }
 
             private void findCursorPoint(int x) {
-                cursorX = 4;
-                cursorsOffset = 0;
+                cursorX = LEFT_PADDING;
+                cursorsCharOffset = 0;
                 for (final Object item : content) {
                     if (item instanceof String s) {
                         cursorX += getFontMetrics(getFont()).stringWidth(s);
                     } else {
                         cursorX += OFFSET_AFTER_BUTTON;
                     }
-                    cursorsOffset++;
+                    cursorsCharOffset++;
                     if (cursorX > x) {
                         break;
                     }
                 }
             }
         };
-
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
         addKeyListener(new KeyAdapter() {
@@ -125,27 +148,32 @@ public class JAdvancedInputField extends JComponent {
 
             @Override
             public void keyPressed(KeyEvent e) {
+                int modifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+                if (e.getKeyCode() == KeyEvent.VK_V && (e.getModifiersEx() & modifier) != 0) {
+                    return;
+                }
+
                 if (!editable) {
                     return;
                 }
                 char keyChar = e.getKeyChar();
                 if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    if (cursorsOffset > 0) {
-                        if (content.get(cursorsOffset - 1) instanceof String s) {
+                    if (cursorsCharOffset > 0) {
+                        if (content.get(cursorsCharOffset - 1) instanceof String s) {
                             cursorX -= getFontMetrics(getFont()).stringWidth(s);
                         } else {
                             cursorX -= OFFSET_AFTER_BUTTON;
                         }
-                        cursorsOffset--;
+                        cursorsCharOffset--;
                         repaint();
                     }
                     return;
                 }
 
                 if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    if (cursorsOffset < content.size()) {
-                        cursorsOffset++;
-                        if (content.get(cursorsOffset - 1) instanceof String s) {
+                    if (cursorsCharOffset < content.size()) {
+                        cursorsCharOffset++;
+                        if (content.get(cursorsCharOffset - 1) instanceof String s) {
                             cursorX += getFontMetrics(getFont()).stringWidth(s);
                         } else {
                             cursorX += OFFSET_AFTER_BUTTON;
@@ -155,15 +183,15 @@ public class JAdvancedInputField extends JComponent {
                     return;
                 }
 
-                if (isBackspace(e) && cursorsOffset > 0) {
-                    if (content.get(cursorsOffset - 1) instanceof String s) {
+                if (isBackspace(e) && cursorsCharOffset > 0) {
+                    if (content.get(cursorsCharOffset - 1) instanceof String s) {
                         cursorX -= getFontMetrics(getFont()).stringWidth(s);
                     } else {
-                        remove(((JButton) content.get(cursorsOffset - 1)));
+                        remove(((JButton) content.get(cursorsCharOffset - 1)));
                         cursorX -= OFFSET_AFTER_BUTTON;
                     }
-                    content.remove(cursorsOffset - 1);
-                    cursorsOffset--;
+                    content.remove(cursorsCharOffset - 1);
+                    cursorsCharOffset--;
                     notifyListeners(content);
                     repaint();
                     return;
@@ -174,7 +202,6 @@ public class JAdvancedInputField extends JComponent {
                 }
 
                 addText(String.valueOf(keyChar), true);
-                cursorsOffset++;
                 repaint();
             }
         });
@@ -185,7 +212,7 @@ public class JAdvancedInputField extends JComponent {
         JMenuItem menuItem = new JMenuItem("New UUID Generator");
         menuItem.addActionListener(e -> {
             addButton("UUID");
-            cursorsOffset++;
+            cursorsCharOffset++;
             requestFocusInWindow();
             repaint();
         });
@@ -198,12 +225,13 @@ public class JAdvancedInputField extends JComponent {
     }
 
     private void addText(String text, boolean notify) {
-        content.add(cursorsOffset, text);
+        content.add(cursorsCharOffset, text);
         cursorX += getFontMetrics(getFont()).stringWidth(text);
+        cursorsCharOffset++;
         if (notify) {
             notifyListeners(content);
         }
-   }
+    }
 
     private void notifyListeners(List<Object> content) {
         inputListeners.forEach(inputListener -> inputListener.onInputUpdate(content));
@@ -215,7 +243,7 @@ public class JAdvancedInputField extends JComponent {
         button.setBorder(BorderFactory.createEmptyBorder());
         button.setFont(button.getFont().deriveFont(Font.BOLD, 10));
         button.setBackground(new Color(63, 100, 139, 255));
-        content.add(cursorsOffset, button);
+        content.add(cursorsCharOffset, button);
         add(button);
         cursorX += OFFSET_AFTER_BUTTON;
     }
@@ -225,10 +253,11 @@ public class JAdvancedInputField extends JComponent {
         super.paintComponent(g);
         if (hasFocus() && editable) {
             g.setColor(Color.LIGHT_GRAY);
-            g.drawLine(cursorX, cursorY - 12, cursorX, cursorY + 4);  // Vertical line for the cursor
+            g.drawLine(cursorX, cursorY - 12, cursorX,
+                cursorY + LEFT_PADDING);  // Vertical line for the cursor
         }
 
-        int x = 4;
+        int x = LEFT_PADDING;
         int y = cursorY;
         for (Object obj : content) {
             if (obj instanceof String) {
@@ -237,7 +266,7 @@ public class JAdvancedInputField extends JComponent {
                 x += getFontMetrics(getFont()).stringWidth((String) obj);
             } else if (obj instanceof JButton button) {
                 button.setLocation(x + 2, y - 12);
-                x += button.getWidth() + 4;
+                x += button.getWidth() + LEFT_PADDING;
             }
         }
     }
@@ -264,8 +293,8 @@ public class JAdvancedInputField extends JComponent {
     public void setContent(String strContent) {
         destructComponents();
         content.clear();
-        cursorX = 4;
-        cursorsOffset = 0;
+        cursorX = LEFT_PADDING;
+        cursorsCharOffset = 0;
         renderStringContent(strContent);
         notifyListeners(content);
     }
@@ -280,10 +309,9 @@ public class JAdvancedInputField extends JComponent {
             var precedingText = strContent.substring(start, matcher.start());
             for (char c : precedingText.toCharArray()) {
                 addText(String.valueOf(c), false);
-                cursorsOffset++;
             }
             addButton(matcher.group(1));
-            cursorsOffset++;
+            cursorsCharOffset++;
             start = matcher.end();
         }
 
@@ -291,20 +319,29 @@ public class JAdvancedInputField extends JComponent {
             var precedingText = strContent.substring(start);
             for (char c : precedingText.toCharArray()) {
                 addText(String.valueOf(c), false);
-                cursorsOffset++;
             }
         }
     }
 
     private void destructComponents() {
         content.stream().filter(o -> o instanceof JButton)
-                .forEach(b -> JAdvancedInputField.this.remove((JButton) b));
+            .forEach(b -> JAdvancedInputField.this.remove((JButton) b));
     }
 
     public void addInputListener(InputListener listener) {
         if (!inputListeners.contains(listener)) {
             inputListeners.add(listener);
         }
+    }
+
+    private static String getClipboardContent() {
+        Clipboard systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        try {
+            return (String) systemClipboard.getData(DataFlavor.stringFlavor);
+        } catch (IOException | UnsupportedFlavorException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     public void removeAllListeners() {

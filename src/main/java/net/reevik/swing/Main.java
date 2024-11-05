@@ -48,7 +48,7 @@ public class Main {
             jToggleGroup.addToggle(new JFlatToggleButton(queryConfig));
             jToggleGroup.selectFirst();
 
-             */
+
             JHttpViewer jHttpViewer = new JHttpViewer();
             jHttpViewer.setText("""
                     {"var"[ "feen" , "stieg"]}
@@ -56,7 +56,11 @@ public class Main {
             jHttpViewer.setPreferredSize(new Dimension(400, 50));
             jHttpViewer.setMaximumSize(new Dimension(400, 50));
             jHttpViewer.setMinimumSize(new Dimension(400, 50));
-            jFrame.add(jHttpViewer);
+
+             */
+
+            JAdvancedInputField inputField = new JAdvancedInputField();
+            jFrame.add(inputField);
             jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             jFrame.setVisible(true);
         });
