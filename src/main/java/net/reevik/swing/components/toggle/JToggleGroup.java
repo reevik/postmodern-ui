@@ -1,19 +1,28 @@
 package net.reevik.swing.components.toggle;
 
+import java.awt.Color;
 import java.util.function.Predicate;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
-public class JToggleGroup extends JPanel implements ToggleListener {
+public class JToggleGroup extends RoundedPanel implements ToggleListener {
 
     private final List<ToggleListenable> toggles = new ArrayList<>();
     private final List<ToggleChangeListenable> toggleChangeListenables = new ArrayList<>();
     private Predicate<ToggleListenable> canTogglePredicate;
     private Predicate<ToggleListenable> canUnogglePredicate;
 
-    public void selectFirst() {
+    public JToggleGroup(int arcWidth, int arcHeight, Color backgroundColor) {
+        super(arcWidth, arcHeight, backgroundColor);
+    }
+
+    public JToggleGroup() {
+        super(2, 2, Color.lightGray);
+        setBorder(BorderFactory.createEmptyBorder());
+    }
+
+    public void toggleFirst() {
         toggles.stream().findFirst().ifPresent(ToggleListenable::toggle);
     }
 

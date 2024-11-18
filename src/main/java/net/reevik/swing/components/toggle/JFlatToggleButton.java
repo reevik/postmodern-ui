@@ -41,7 +41,7 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
         setBackground(configuration.background);
         setOpaque(false);
         setLayout(new GridBagLayout());
-        setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         var gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.weightx = 0.9;
         gridBagConstraints.anchor = WEST;
@@ -181,5 +181,9 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
     @Override
     public boolean isToggled() {
         return toggled;
+    }
+
+    public String getCaption() {
+        return configuration.caption;
     }
 }

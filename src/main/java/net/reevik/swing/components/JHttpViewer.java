@@ -86,9 +86,9 @@ public class JHttpViewer extends JPanel {
     private void render() {
         var styleContext = StyleContext.getDefaultStyleContext();
         AttributeSet attributeSet = styleContext.addAttribute(EMPTY, StyleConstants.Foreground, new Color(95,160,217, 255));
-        var patternJson = Pattern.compile("[\\[:,]\\s?+\"(.+?)\"");
-        var patternParam= Pattern.compile(":\\s?+(.+?)\n");
-        applyPattern(editor.getText(), patternParam, attributeSet);
+        var patternJson = Pattern.compile("[:]\\s?+\"(.+?)\"[,}]");
+        //var patternParam= Pattern.compile(":\\s?+(.+?)\n");
+        //applyPattern(editor.getText(), patternParam, attributeSet);
         applyPattern(editor.getText(), patternJson, attributeSet);
     }
 
