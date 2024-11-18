@@ -55,7 +55,6 @@ public class Main {
             jHttpViewer.setMaximumSize(new Dimension(400, 50));
             jHttpViewer.setMinimumSize(new Dimension(400, 50));
 
-             */
 
             Configuration headerConfig = new Configuration("Header", (a) -> {
             }, Color.darkGray, Color.gray, Color.RED, 100, 11);
@@ -72,8 +71,12 @@ public class Main {
             jToggleGroup.addToggle(new JFlatToggleButton(queryConfig));
             jToggleGroup.toggleFirst();
 
+             */
             // JAdvancedInputField inputField = new JAdvancedInputField();
-            jFrame.add(jToggleGroup);
+
+            Configuration queryConfig = new Configuration("Local", (a) -> {
+            }, Color.darkGray, Color.gray, Color.RED, 80, 11, null);
+            jFrame.add(new JFlatToggleButton(queryConfig));
             jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             jFrame.setVisible(true);
         });

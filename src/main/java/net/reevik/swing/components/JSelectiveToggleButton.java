@@ -1,6 +1,5 @@
 package net.reevik.swing.components;
 
-import java.util.function.Predicate;
 import net.reevik.swing.components.toggle.ToggleEvent;
 import net.reevik.swing.components.toggle.ToggleListenable;
 import net.reevik.swing.components.toggle.ToggleListener;
@@ -16,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static java.awt.GridBagConstraints.WEST;
 

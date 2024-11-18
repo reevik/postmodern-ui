@@ -1,26 +1,27 @@
 package net.reevik.swing.components.toggle;
 
-import java.util.function.Predicate;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
+import static java.awt.GridBagConstraints.EAST;
 import static java.awt.GridBagConstraints.WEST;
+import static net.reevik.swing.graphics.GraphicalUtils.loadIcon;
 
 public class JFlatToggleButton extends JPanel implements ToggleListenable {
     private static final int HEIGHT = 22;
-    private static final int ARROW_WIDTH = 20;
+    private static final int ARROW_WIDTH = 10;
+    private static final String CLOSE_ICON = "/icons/x-circle.svg";
     private boolean focus;
     private boolean active;
     private boolean toggled;
     private String selection;
     private final JLabel selectedLabel = new JLabel();
+    private final JButton closeButton = new JButton();
     private final JFlatToggleButton.Configuration configuration;
     private final List<ToggleListener> toggleListeners = new ArrayList<>();
     private boolean memberOfToggleGroup = false;
@@ -41,7 +42,8 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
         setBackground(configuration.background);
         setOpaque(false);
         setLayout(new GridBagLayout());
-        setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
+
         var gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.weightx = 0.9;
         gridBagConstraints.anchor = WEST;
@@ -50,6 +52,19 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
         selectedLabel.setForeground(Color.LIGHT_GRAY);
         selectedLabel.setFont(selectedLabel.getFont().deriveFont(configuration.fontSize));
         add(selectedLabel, gridBagConstraints);
+
+        if (configuration.closeAction() != null) {
+            closeButton.setIcon(loadIcon(CLOSE_ICON));
+            closeButton.setOpaque(false);
+            closeButton.setForeground(Color.LIGHT_GRAY);
+            closeButton.setFont(selectedLabel.getFont().deriveFont((float) configuration.fontSize()));
+            closeButton.setBorder(BorderFactory.createEmptyBorder());
+            closeButton.addActionListener(e -> configuration.closeAction().accept(getCaption()));
+            gridBagConstraints.weightx = 0.2;
+            gridBagConstraints.anchor = EAST;
+            gridBagConstraints.insets = new Insets(1, 2, 0, 2);
+            add(closeButton, gridBagConstraints);
+        }
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -105,10 +120,14 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
     }
 
     private void adjustWidthAccordingToTextWidth() {
-        int textWidth = getFontMetrics(getFont()).stringWidth(selection);
-        setPreferredSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
-        setMaximumSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
-        setMinimumSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
+        int rightPadding = ARROW_WIDTH;
+        if (configuration.closeAction() != null) {
+            rightPadding = 30;
+        }
+        int textWidth = getFontMetrics(getFont()).stringWidth(selection) + 10;
+        setPreferredSize(new Dimension(textWidth + rightPadding, HEIGHT));
+        setMaximumSize(new Dimension(textWidth + rightPadding, HEIGHT));
+        setMinimumSize(new Dimension(textWidth + rightPadding, HEIGHT));
     }
 
     @Override
@@ -116,7 +135,7 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(configuration.background);
+        g2.setColor(configuration.background());
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 9, 9);
         g2.dispose();
     }
@@ -130,9 +149,10 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
                                 Consumer<String> action,
                                 Color background,
                                 Color toggled,
-                                Color label,
+                                Color foreground,
                                 int width,
-                                int fontSize) {
+                                int fontSize,
+                                Consumer<String> closeAction) {
     }
 
     public void addListener(ToggleListener toggleListener) {
@@ -173,8 +193,9 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
         return canTogglePredicate.test(this);
     }
 
+    @Override
     public void setCanTogglePredicate(
-        Predicate<ToggleListenable> canTogglePredicate) {
+            Predicate<ToggleListenable> canTogglePredicate) {
         this.canTogglePredicate = canTogglePredicate;
     }
 
@@ -184,6 +205,6 @@ public class JFlatToggleButton extends JPanel implements ToggleListenable {
     }
 
     public String getCaption() {
-        return configuration.caption;
+        return configuration.caption();
     }
 }

@@ -1,10 +1,10 @@
 package net.reevik.swing.components.toggle;
 
-import java.awt.Color;
-import java.util.function.Predicate;
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class JToggleGroup extends RoundedPanel implements ToggleListener {
 
@@ -36,6 +36,30 @@ public class JToggleGroup extends RoundedPanel implements ToggleListener {
         }
         if (toggle instanceof JComponent component) {
             add(component);
+        }
+    }
+
+    // Removes the toggle button by its caption and tries to toggle the previous toggle button if exists otherwise it will try to toggle the last toggle.
+    public void removeToggleByCaption(String caption) {
+        JFlatToggleButton previousToggleButton = null;
+        for (var toggle : toggles) {
+            if (toggle instanceof JFlatToggleButton toggleButton) {
+                if (caption.equals(toggleButton.getCaption())) {
+                    remove(toggleButton);
+                    if (previousToggleButton != null) {
+                        previousToggleButton.toggle();
+                    } else {
+                        ToggleListenable last = toggles.getLast();
+                        if (last != null) {
+                            last.toggle();
+                        }
+                    }
+                    revalidate();
+                    repaint();
+                    break;
+                }
+                previousToggleButton = toggleButton;
+            }
         }
     }
 
