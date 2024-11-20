@@ -18,7 +18,7 @@ package net.reevik.swing.components;
 import static java.awt.GridBagConstraints.EAST;
 import static java.awt.GridBagConstraints.VERTICAL;
 import static java.awt.GridBagConstraints.WEST;
-import static net.reevik.swing.components.JSelectiveToggleButton.ARROW_WIDTH;
+import static net.reevik.swing.graphics.GraphicalUtils.loadIcon;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -45,7 +46,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 public class JFlatComboBox extends JPanel {
-
+  private static final int PADDING = 10;
   private static final int HEIGHT = 22;
   private boolean focus;
   private boolean active;
@@ -71,11 +72,13 @@ public class JFlatComboBox extends JPanel {
     setOpaque(false);
     setLayout(new GridBagLayout());
     setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 6));
+
     var popupmenu = new JPopupMenu("Edit");
     popupmenu.setBackground(configuration.active());
     configuration.items().stream()
         .map(this::createMenuItem)
         .forEach(popupmenu::add);
+
     popupmenu.addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -97,7 +100,7 @@ public class JFlatComboBox extends JPanel {
 
     selectedLabel.setText(selection);
     selectedLabel.setForeground(configuration.label());
-    selectedLabel.setFont(selectedLabel.getFont().deriveFont(11f));
+    selectedLabel.setFont(selectedLabel.getFont().deriveFont((float) configuration.fontSize()));
     add(selectedLabel, gridBagConstraints);
 
     gridBagConstraints.weightx = 0.1;
@@ -105,7 +108,8 @@ public class JFlatComboBox extends JPanel {
     gridBagConstraints.weighty = 1.0;
     gridBagConstraints.fill = VERTICAL;
 
-    var arrowButton = new JLabel("  ▾");
+    var svgIcon = loadIcon("/icons/chevron-down.svg");
+    var arrowButton = new JLabel(new ImageIcon(svgIcon.getImage()));
     arrowButton.setForeground(configuration.label());
     arrowButton.setSize(32, HEIGHT);
     arrowButton.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 0, Color.BLACK));
@@ -153,7 +157,7 @@ public class JFlatComboBox extends JPanel {
     menuItem.setIcon(null);
     menuItem.setIconTextGap(0);
     menuItem.setMargin(new Insets(0, -6, 0, 0));
-    menuItem.setFont(menuItem.getFont().deriveFont(11f));
+    menuItem.setFont(menuItem.getFont().deriveFont((float) configuration.fontSize()));
     menuItem.addActionListener(e -> {
       selection = e.getActionCommand();
       selectedLabel.setText(selection);
@@ -169,10 +173,10 @@ public class JFlatComboBox extends JPanel {
   }
 
   private void adjustWidthAccordingToTextWidth() {
-    int textWidth = getFontMetrics(getFont()).stringWidth(selection) + 8;
-    setPreferredSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
-    setMaximumSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
-    setMinimumSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
+    int textWidth = getFontMetrics(selectedLabel.getFont()).stringWidth(selection) + 24;
+    setPreferredSize(new Dimension(textWidth + PADDING, HEIGHT));
+    setMaximumSize(new Dimension(textWidth + PADDING, HEIGHT));
+    setMinimumSize(new Dimension(textWidth + PADDING, HEIGHT));
   }
 
   @Override

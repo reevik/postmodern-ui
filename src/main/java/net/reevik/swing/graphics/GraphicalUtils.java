@@ -1,7 +1,6 @@
 package net.reevik.swing.graphics;
 
 import com.kitfox.svg.app.beans.SVGIcon;
-
 import java.net.URISyntaxException;
 import java.net.URL;
 

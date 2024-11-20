@@ -22,7 +22,8 @@ import static java.awt.GridBagConstraints.WEST;
 public class JSelectiveToggleButton extends JPanel implements ToggleListenable {
 
     private static final int HEIGHT = 22;
-    public static final int ARROW_WIDTH = 20;
+    private static final int ARROW_WIDTH = 20;
+    private static final int PADDING = 8;
     private boolean focus;
     private boolean active;
     private boolean toggled;
@@ -158,9 +159,9 @@ public class JSelectiveToggleButton extends JPanel implements ToggleListenable {
 
     private void adjustWidthAccordingToTextWidth() {
         int textWidth = getFontMetrics(getFont()).stringWidth(selection);
-        setPreferredSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
-        setMaximumSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
-        setMinimumSize(new Dimension(textWidth + ARROW_WIDTH, HEIGHT));
+        setPreferredSize(new Dimension(textWidth + PADDING, HEIGHT));
+        setMaximumSize(new Dimension(textWidth + PADDING, HEIGHT));
+        setMinimumSize(new Dimension(textWidth + PADDING, HEIGHT));
     }
 
     @Override
